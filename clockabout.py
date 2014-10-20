@@ -61,10 +61,13 @@ with open("outfile.txt", 'w', encoding='utf-8') as outfile:
         # create an integer out of each word using the following scheme:
         # letter 1: n-th prime ^ 1; letter 2: m-th prime ^ 2; letter 3: l-th prime ^ 3, etc
         prod = 1
+        factors = ''
         for i in range(len(word)):
             prod *= primes[alphabet.index(word[i])] ** (i + 1)
+            factors += '%s - %s [%s] ; ' % (word[i], primes[alphabet.index(word[i])], i + 1) 
         # determine the digits in clockbase
         clockdigits = get_clock_digits(prod)
         print('word: %s - prod: %s - clockdigits: %s' % (word, prod, clockdigits['repr']), file=outfile)
+        print('factors: %s' % factors, file=outfile)
         for index, digit in enumerate(clockdigits['struc']):
             draw_clock("%s-%s" % (word, index), *digit)
