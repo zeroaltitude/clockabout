@@ -5,7 +5,8 @@ import math
 from PIL import Image, ImageDraw
 
 
-scale = 1
+scale = 5
+width = scale
 limit_x = 36 * scale
 limit_y = 36 * scale
 abs_offset_x = 2 * scale
@@ -23,6 +24,18 @@ def get_coord_for_second(s):
     return points[(s + offset) % seconds]
 
 
+def increment(point):
+    if point[0] == 0:
+        p0 = point[0] + math.floor(scale/2) + 1
+    else:
+        p0 = point[0] - math.floor(scale/2) - 1
+    if point[1] == 0:
+        p1 = point[1] + math.floor(scale/2) + 1
+    else:
+        p1 = point[1] - math.floor(scale/2) - 1
+    return (p0, p1)
+
+
 def draw_face(draw):
     global points
     state = 0
@@ -31,7 +44,10 @@ def draw_face(draw):
         pointq2 = (limit_x - scale - abs_offset_x, i * (2 * scale) + initial_offset_y + abs_offset_y)
         pointq3 = (i * (2 * scale) + initial_offset_x + abs_offset_x, limit_y - scale - abs_offset_y)
         pointq4 = (0 + abs_offset_x, i * (2 * scale) + initial_offset_y + abs_offset_y)
-        draw.point([pointq1, pointq2, pointq3, pointq4], fill="black")
+        draw.line([pointq1, increment(pointq1)], fill="black", width=width)
+        draw.line([pointq2, increment(pointq2)], fill="black", width=width)
+        draw.line([pointq3, increment(pointq3)], fill="black", width=width)
+        draw.line([pointq4, increment(pointq4)], fill="black", width=width)
         points[i] = pointq1
         points[i + 15] = pointq2
         points[44 - i] = pointq3
@@ -42,13 +58,13 @@ def draw_face(draw):
         c = get_coord_for_second(j)
         draw.point(c, fill="blue")
         if c[0] == 0 + abs_offset_x:
-            draw.line([(c[0], c[1]), (c[0] + scale, c[1])], fill="blue")
+            draw.line([(c[0], c[1]), (c[0] + scale + 2, c[1])], fill="blue", width=width)
         elif c[0] == limit_x - scale - abs_offset_x:
-            draw.line([(c[0], c[1]), (c[0] - scale, c[1])], fill="blue")
+            draw.line([(c[0], c[1]), (c[0] - scale - 2, c[1])], fill="blue", width=width)
         elif c[1] == 0 + abs_offset_y:
-            draw.line([(c[0], c[1]), (c[0], c[1] + scale)], fill="blue")
+            draw.line([(c[0], c[1]), (c[0], c[1] + scale + 2)], fill="blue", width=width)
         elif c[1] == limit_y - scale - abs_offset_y:
-            draw.line([(c[0], c[1]), (c[0], c[1] - scale)], fill="blue")
+            draw.line([(c[0], c[1]), (c[0], c[1] - scale - 2)], fill="blue", width=width)
 
 
 def draw_hand(draw, pos, length=0, color=None):
@@ -88,25 +104,25 @@ def draw_hand(draw, pos, length=0, color=None):
         elif xcoord < 0 and ycoord > 0:
             ymathmod = math.floor
         dest_point = (center_point[0] + xmathmod(xcoord), center_point[1] + ymathmod(ycoord))
-    draw.line([center_point, dest_point], fill=color)
+    draw.line([center_point, dest_point], fill=color, width=width)
 
 
 def draw_second_hand(draw, s):
-    draw_hand(draw, s, length=17 * scale, color="#ff0000")
+    draw_hand(draw, s, length=17 * scale, color="#990000")
 
 
 def draw_minute_hand(draw, m):
-    draw_hand(draw, m, length=15 * scale, color="#000000")
+    draw_hand(draw, m, length=15 * scale, color="#12111d")
 
 
 def draw_hour_hand(draw, h):
-    draw_hand(draw, h * 5, length=10 * scale, color="#000000")
+    draw_hand(draw, h * 5, length=8 * scale, color="#12111d")
 
 
 def draw_clock(word, h, m, s):
-    im = Image.new("RGBA", (limit_x, limit_y), "white")
-    trans = [(255, 255, 255, 0) for _ in range(limit_y * limit_x)]
-    im.putdata(trans)
+    im = Image.new("RGBA", (limit_x, limit_y), "#cfccc7")
+    # trans = [(255, 255, 255, 0) for _ in range(limit_y * limit_x)]
+    # im.putdata(trans)
     draw = ImageDraw.Draw(im)
     draw_face(draw)
     draw_second_hand(draw, s)
