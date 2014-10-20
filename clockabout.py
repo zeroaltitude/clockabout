@@ -25,17 +25,21 @@ primes you need to hunt for are the first 26.  That is the reason this problem i
 
 """
 
+from decimal import Decimal, getcontext
+
 from draw import draw_clock
 
 
+getcontext().prec = 64
 alphabet = [chr(x) for x in range(97, 123)]
-primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37,
+primes = [Decimal(x) for x in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37,
           41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83,
-          89, 97, 101]
+          89, 97, 101]]
 inputtxt = "private message https dcdark net CEFAEDFE"
 
 inputtxt = inputtxt.lower()
-clockbase = 60 * 60 * 12
+clockbase = Decimal(60 * 60 * 12)
+hourminmod = Decimal(60)
 
 
 def get_clock_digits(prod):
@@ -43,27 +47,24 @@ def get_clock_digits(prod):
     crepr = ''
     struc = []
     while prod > 0:
-        x = 0
-        y = 0
-        z = 0
         cmod = prod % clockbase
-        z = cmod % 60
-        y = int(((cmod - z) / 60) % 60)
-        x = int((cmod - (y * 60) - z) / (60 * 60))
+        z = cmod % hourminmod
+        y = Decimal(((cmod - z) / hourminmod) % hourminmod)
+        x = Decimal((cmod - (y * hourminmod) - z) / (hourminmod * hourminmod))
         crepr += "[%sh %sm %ss - %s] " % (x, y, z, cmod)
-        prod = int((prod - cmod) / clockbase)
-        struc.append([x, y, z])
+        prod = Decimal((prod - cmod) / clockbase)
+        struc.append([int(x), int(y), int(z)])
     return {'repr': crepr, 'struc': struc}
 
 
-with open("outfile.txt", 'w', encoding='utf-8') as outfile:
+with open("outfile-3.txt", 'w', encoding='utf-8') as outfile:
     for word in inputtxt.split(' '):
         # create an integer out of each word using the following scheme:
         # letter 1: n-th prime ^ 1; letter 2: m-th prime ^ 2; letter 3: l-th prime ^ 3, etc
         prod = 1
         factors = ''
         for i in range(len(word)):
-            prod *= primes[alphabet.index(word[i])] ** (i + 1)
+            prod *= Decimal(primes[alphabet.index(word[i])] ** Decimal(i + 1))
             factors += '%s - %s [%s] ; ' % (word[i], primes[alphabet.index(word[i])], i + 1) 
         # determine the digits in clockbase
         clockdigits = get_clock_digits(prod)
