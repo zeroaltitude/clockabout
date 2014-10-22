@@ -120,7 +120,7 @@ def draw_hour_hand(draw, h):
 
 
 def draw_clock(word, h, m, s):
-    im = Image.new("RGBA", (limit_x, limit_y), "#cfccc7")
+    im = Image.new("RGBA", (limit_x - scale - 1, limit_y - scale - 1), "#cfccc7")
     # trans = [(255, 255, 255, 0) for _ in range(limit_y * limit_x)]
     # im.putdata(trans)
     draw = ImageDraw.Draw(im)
